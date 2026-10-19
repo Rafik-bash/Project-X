@@ -56,7 +56,7 @@ body { padding-top: var(--header-height-compact); }
   z-index: var(--z-header);
   height: var(--header-height-compact);
   border-bottom: 1px solid transparent;
-  transition: border-color var(--dur-base) var(--ease-out);
+  transition: border-color var(--dur-base) var(--ease-out), top var(--dur-base) var(--ease-out);
 }
 /* Blur lives on a pseudo-element: backdrop-filter on the header itself would
    make it the containing block for the fixed mobile nav sheet. */
@@ -89,17 +89,18 @@ body { padding-top: var(--header-height-compact); }
   text-decoration: none;
   margin-inline-end: auto;
 }
-.logo__mark { width: 2.25rem; height: 2.25rem; --mark-ink: var(--color-primary); --mark-swash: var(--color-accent); }
-.section--dark .logo__mark { --mark-ink: var(--color-ink); }
+.logo__mark { width: 2.5rem; height: 2.5rem; --mark-ink: var(--color-primary); --mark-one: var(--color-primary); --mark-swash: var(--color-accent); }
+.section--dark .logo__mark { --mark-ink: var(--color-ink); --mark-one: var(--color-dark-primary); }
 .logo__word {
   font-family: var(--font-display);
   font-size: var(--fs-lg);
-  font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 0;
+  font-weight: var(--fw-display);
   letter-spacing: var(--ls-heading);
-  line-height: 1;
+  line-height: 1.2;
   white-space: nowrap;
 }
-.logo__word em { font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1; }
+.logo__word em { font-family: var(--font-accent); font-style: normal; font-weight: 700; color: var(--color-primary); }
+.section--dark .logo__word em { color: var(--color-dark-primary); }
 .logo--lg .logo__word { font-size: var(--fs-2xl); }
 .logo--lg .logo__mark { width: 3rem; height: 3rem; }
 

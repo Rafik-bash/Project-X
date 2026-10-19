@@ -98,6 +98,7 @@ h1 em, h2 em, h3 em {
   font-weight: 700;
 }
 p { text-wrap: pretty; }
+bdi { overflow-wrap: anywhere; }
 
 a {
   color: var(--color-primary);

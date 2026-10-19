@@ -4,20 +4,20 @@
 // in the markup so copy stays in index.html.
 
 // Brand name, used in the .ics file. Keep in sync with index.html.
-const BRAND = 'ميزون كلير';
+const BRAND = 'مكتب الاختيار الأول';
 
 // Prices in Iraqi dinar (IQD). Base = studio or 1 bedroom with 1 bathroom.
 const SERVICES = {
-  standard: { name: 'Standard clean', base: 75000, bed: 10000, bath: 10000, hours: 2 },
-  deep: { name: 'Deep clean', base: 125000, bed: 15000, bath: 15000, hours: 3.5 },
-  move: { name: 'Move in / move out', base: 160000, bed: 20000, bath: 15000, hours: 4.5 },
-  reno: { name: 'Post-renovation', base: 200000, bed: 25000, bath: 20000, hours: 5.5 },
+  standard: { name: 'تنظيف أساسي', base: 75000, bed: 10000, bath: 10000, hours: 2 },
+  deep: { name: 'تنظيف عميق', base: 125000, bed: 15000, bath: 15000, hours: 3.5 },
+  move: { name: 'تنظيف نقل بيت', base: 160000, bed: 20000, bath: 15000, hours: 4.5 },
+  reno: { name: 'تنظيف بعد الترميم', base: 200000, bed: 25000, bath: 20000, hours: 5.5 },
 };
 const EXTRAS = {
-  oven: { name: 'Inside oven', price: 25000, hours: 1 },
-  fridge: { name: 'Inside fridge', price: 15000, hours: 0.5 },
-  windows: { name: 'Interior windows', price: 30000, hours: 1 },
-  laundry: { name: 'Laundry & fold', price: 20000, hours: 0.5 },
+  oven: { name: 'جوه الفرن', price: 25000, hours: 1 },
+  fridge: { name: 'جوه الثلاجة', price: 15000, hours: 0.5 },
+  windows: { name: 'الشبابيك من جوه', price: 30000, hours: 1 },
+  laundry: { name: 'غسل الهدوم وطيّها', price: 20000, hours: 0.5 },
 };
 const INCLUDED_IN_MOVE = ['oven', 'fridge'];
 // Iraqi working week: Saturday to Thursday, Friday off, Thursday a short day.
@@ -26,7 +26,7 @@ const SHORT_DAY = 4; // Thursday
 const WEEKDAY_SLOTS = ['08:00', '10:00', '12:00', '14:00', '16:00'];
 const SHORT_DAY_SLOTS = ['08:00', '10:00', '12:00'];
 const BOOK_AHEAD_DAYS = 56;
-const STORE_KEY = 'mc-booking';
+const STORE_KEY = 'ak-booking';
 const REF_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const BOUNDS = { bedrooms: [0, 6], bathrooms: [1, 4] };
 
@@ -67,13 +67,13 @@ function fmtHours(h) {
   const whole = Math.floor(h);
   const half = h % 1 ? ' ونص' : '';
   if (whole === 0) return 'نص ساعة';
-  if (whole === 1) return 'ساعة' + half;
+  if (whole === 1) return (half ? 'ساعة' : 'ساعة وحدة') + half;
   if (whole === 2) return 'ساعتين' + half;
   return `${num.format(whole)} ${whole <= 10 ? 'ساعات' : 'ساعة'}${half}`;
 }
 const fmtTeam = (n) => (n === 1 ? 'شخص واحد' : n === 2 ? 'شخصين' : `${num.format(n)} أشخاص`);
 const fmtBeds = (n) => (n === 0 ? 'ستوديو' : n === 1 ? 'غرفة نوم وحدة' : n === 2 ? 'غرفتين نوم' : `${num.format(n)} غرف نوم`);
-const fmtBaths = (n) => (n === 1 ? 'حمام واحد' : n === 2 ? 'حمامين' : `${num.format(n)} حمامات`);
+const fmtBaths = (n) => (n === 1 ? 'حمّام واحد' : n === 2 ? 'حمّامين' : `${num.format(n)} حمّامات`);
 const sizeLabel = (bed, bath) => `${fmtBeds(bed)} · ${fmtBaths(bath)}`;
 
 const DEFAULTS = () => ({
@@ -240,7 +240,7 @@ export function initBooking(root) {
         if (d.getMonth() !== view.getMonth()) { cells.push('<td role="gridcell" class="cal__pad"></td>'); continue; }
         const st = dayStatus(d);
         const sel = sameDay(d, state.date);
-        const label = `${fmtLong.format(d)}، ${{ open: 'متاح', full: 'محجوز بالكامل', closed: 'عطلة', past: 'غير متاح' }[st]}${sel ? '، مختار' : ''}`;
+        const label = `${fmtLong.format(d)}، ${{ open: 'متوفر', full: 'محجوز بالكامل', closed: 'عطلة', past: 'مو متاح' }[st]}${sel ? '، مختار' : ''}`;
         cells.push(`<td role="gridcell"${sel ? ' aria-selected="true"' : ''}><button type="button" lang="ar-IQ"
           class="cal__day is-${st}${sel ? ' is-selected' : ''}" data-date="${iso(d)}"
           tabindex="${sameDay(d, focusDate) ? 0 : -1}" aria-label="${label}"
@@ -260,10 +260,11 @@ export function initBooking(root) {
     focusDate = d;
     clearError('date');
     const slots = slotsFor(d);
-    let msg = `اخترت ${fmtDay.format(d)}. اكو ${num.format(slots.filter((s) => s.free).length)} أوقات وصول متاحة.`;
+    const free = slots.filter((s) => s.free).length;
+    let msg = `اخترت ${fmtDay.format(d)}. ${free === 0 ? 'ماكو أوقات وصول متوفرة' : free === 1 ? 'اكو وقت وصول واحد متوفر' : free === 2 ? 'اكو وقتين وصول متوفرين' : `اكو ${num.format(free)} أوقات وصول متوفرة`}.`;
     if (prevSlot && !slots.find((s) => s.t === prevSlot && s.free)) {
       state.slot = null;
-      msg += ` الساعة ${to12h(prevSlot)} مو متاحة بهذا اليوم، اختار وقت ثاني.`;
+      msg += ` ${to12h(prevSlot)} مو متوفر بذاك اليوم. اختار وقت ثاني.`;
     }
     renderCalendar(true);
     update();
@@ -281,7 +282,7 @@ export function initBooking(root) {
       <div class="slots__grid">${slots.map((s) => `<label class="slot${s.free ? '' : ' is-taken'}">
         <input type="radio" name="slot" value="${s.t}"${s.free ? '' : ' disabled'}${state.slot === s.t ? ' checked' : ''}>
         <span class="slot__time">${to12h(s.t)}</span>
-        <span class="slot__meta">${s.free ? `نخلص تقريباً ${to12h(addHours(s.t, hours + 0.5))}` : 'محجوز'}</span>
+        <span class="slot__meta">${s.free ? `يخلص بحدود ${to12h(addHours(s.t, hours + 0.5))}` : 'محجوز'}</span>
       </label>`).join('')}</div>
       <p class="slots__note">${slotWrap.dataset.note}</p></fieldset>`;
   }
@@ -358,7 +359,7 @@ export function initBooking(root) {
       if (input.name === 'notes') {
         const left = 500 - input.value.length;
         const c = $('[data-notes-count]');
-        c.textContent = `باقي ${num.format(left)} حرف`;
+        c.textContent = `باقيلك ${num.format(left)} حرف`;
         c.hidden = left > 50;
       }
       if (input.name === 'address') renderSummary();
@@ -409,12 +410,12 @@ export function initBooking(root) {
     set('service', s.name);
     set('size', sizeLabel(state.bedrooms, state.bathrooms));
     set('extras', [
-      ...(state.service === 'move' ? ['الفرن والثلاجة ضمن الخدمة'] : []),
+      ...(state.service === 'move' ? ['الفرن والثلاجة مشمولين'] : []),
       ...extras.map((k) => EXTRAS[k].name),
     ].join('، ') || 'ماكو');
-    set('when', state.date ? `${fmtShort.format(state.date)}${state.slot ? ' · ' + to12h(state.slot) : ''}` : 'بعد ما اخترت');
-    set('team', `حوالي ${fmtHours(q.hours)} · ${fmtTeam(q.team)}`);
-    set('address', state.contact.address?.trim() || 'بعد ما انضاف');
+    set('when', state.date ? `${fmtShort.format(state.date)}${state.slot ? ' · ' + to12h(state.slot) : ''}` : 'بعدك ما اخترت');
+    set('team', `بحدود ${fmtHours(q.hours)} · ${fmtTeam(q.team)}`);
+    set('address', state.contact.address?.trim() || 'بعده ما انضاف');
     set('total', money.format(q.price));
     if (lastTotal !== null && lastTotal !== q.price) {
       $$('[data-sum="total"]').forEach((el) => { el.classList.remove('is-bump'); void el.offsetWidth; el.classList.add('is-bump'); });
@@ -429,7 +430,7 @@ export function initBooking(root) {
     renderSummary();
     if (estimate) {
       const q = quote();
-      announce(`السعر التقريبي ${money.format(q.price)}، حوالي ${fmtHours(q.hours)}.`, 600);
+      announce(`المجموع التقريبي ${money.format(q.price)}، بحدود ${fmtHours(q.hours)}.`, 600);
     }
     save();
   }
@@ -492,7 +493,7 @@ export function initBooking(root) {
     const bytes = new Uint8Array(4);
     crypto.getRandomValues(bytes);
     const tail = [...bytes].map((b) => REF_ALPHABET[b % REF_ALPHABET.length]).join('');
-    return `MC-${String(d.getFullYear()).slice(2)}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${tail}`;
+    return `AK-${String(d.getFullYear()).slice(2)}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${tail}`;
   }
 
   function confirmBooking() {
@@ -534,16 +535,16 @@ export function initBooking(root) {
     const extras = effectiveExtras().map((k) => EXTRAS[k].name).join('، ') || 'ماكو';
     const notes = state.contact.notes?.trim();
     return [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Maison Clair//Booking//EN', 'CALSCALE:GREGORIAN',
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Alikhtiar Alawal//Booking//EN', 'CALSCALE:GREGORIAN',
       'BEGIN:VEVENT',
-      `UID:${ref}@maisonclair.example`,
+      `UID:${ref}@alikhtiar-alawal.example`,
       `DTSTAMP:${utc}`,
       `DTSTART:${local(start)}`,
       `DTEND:${local(end)}`,
       `SUMMARY:${esc(`${BRAND}: ${s.name}`)}`,
       `LOCATION:${esc(state.contact.address.trim())}`,
-      `DESCRIPTION:${esc(`رقم الحجز ${ref}\nالإضافات: ${extras}\nالسعر التقريبي: ${money.format(price)}${notes ? `\nملاحظات: ${notes}` : ''}`)}`,
-      'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', `DESCRIPTION:${esc(`${BRAND} جايين باچر`)}`, 'END:VALARM',
+      `DESCRIPTION:${esc(`الحجز ${ref}\nالإضافات: ${extras}\nالمجموع التقريبي: ${money.format(price)}${notes ? `\nملاحظات: ${notes}` : ''}`)}`,
+      'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', `DESCRIPTION:${esc(`فريق ${BRAND} جايكم باچر`)}`, 'END:VALARM',
       'END:VEVENT', 'END:VCALENDAR', '',
     ].map(fold).join('\r\n');
   }
@@ -551,7 +552,7 @@ export function initBooking(root) {
   $('[data-ics]').addEventListener('click', () => {
     if (!lastIcs) return;
     const url = URL.createObjectURL(new Blob([lastIcs], { type: 'text/calendar;charset=utf-8' }));
-    const a = Object.assign(document.createElement('a'), { href: url, download: `maison-clair-${ref}.ics` });
+    const a = Object.assign(document.createElement('a'), { href: url, download: `alikhtiar-alawal-${ref}.ics` });
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
@@ -559,8 +560,8 @@ export function initBooking(root) {
     const btn = e.currentTarget;
     try { await navigator.clipboard.writeText(ref); } catch { return; }
     const label = btn.textContent;
-    btn.textContent = 'انسخ';
-    announce('تم نسخ رقم الحجز.');
+    btn.textContent = 'تم النسخ';
+    announce('نسخنا رقم الحجز.');
     setTimeout(() => { btn.textContent = label; }, 2000);
   });
   $('[data-restart]').addEventListener('click', () => {
@@ -591,7 +592,7 @@ export function initBooking(root) {
     if (state.step === 4) state = { ...DEFAULTS(), service: a.dataset.service };
     update();
     goTo(1, { focus: false });
-    announce(`تم اختيار ${SERVICES[state.service].name}.`);
+    announce(`اخترت ${SERVICES[state.service].name}.`);
   });
 
   // --- boot -----------------------------------------------------------------

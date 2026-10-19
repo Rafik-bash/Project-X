@@ -72,7 +72,7 @@ function initMenu() {
     sheet.classList.toggle('is-open', open);
     document.body.classList.toggle('menu-open', open);
     outside.forEach((el) => { el.inert = open; });
-    label.textContent = open ? 'سد القائمة' : 'افتح القائمة';
+    label.textContent = open ? 'سكّر القائمة' : 'افتح القائمة';
     icon.setAttribute('href', open ? '#i-x' : '#i-menu');
     updateMobileBar();
     if (open) sheet.querySelector('a')?.focus();

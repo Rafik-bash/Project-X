@@ -23,7 +23,7 @@ function setupSlider(el) {
     const n = Math.round(pos);
     handle.setAttribute('aria-valuenow', n);
     handle.setAttribute('aria-valuetext',
-      n === 100 ? 'تبين صورة قبل بس' : n === 0 ? 'تبين صورة بعد بس' : `${pct(n)} قبل، ${pct(100 - n)} بعد`);
+      n === 100 ? 'بس «قبل»' : n === 0 ? 'بس «بعد»' : `${pct(n)} قبل، ${pct(100 - n)} بعد`);
   };
   // The value counts from the inline-start edge: the left in LTR, the right in RTL.
   const rtl = () => getComputedStyle(el).direction === 'rtl';
@@ -107,7 +107,8 @@ function setupTabs(list) {
     tab.addEventListener('pointerenter', () => preload(tab));
     tab.addEventListener('focus', () => preload(tab));
     tab.addEventListener('keydown', (e) => {
-      const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+      const fwd = getComputedStyle(list).direction === 'rtl' ? -1 : 1; // in RTL the next tab is to the left
+      const next = { ArrowRight: i + fwd, ArrowLeft: i - fwd, Home: 0, End: tabs.length - 1 }[e.key];
       if (next === undefined) return;
       e.preventDefault();
       select(tabs[(next + tabs.length) % tabs.length], true); // automatic activation

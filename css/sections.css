@@ -458,7 +458,8 @@
 .summary__total span { font-weight: var(--fw-medium); }
 .summary__total strong {
   font-family: var(--font-display);
-  font-size: var(--fs-3xl);
+  font-size: var(--fs-2xl);
+  white-space: nowrap;
   font-weight: var(--fw-display);
   font-variant-numeric: tabular-nums lining-nums;
   line-height: 1;
@@ -544,6 +545,9 @@
 @media (min-width: 1024px) {
   .topbar {
     display: block;
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: var(--z-header);
     background: var(--color-dark-bg);
     color: var(--color-dark-muted);
     font-size: var(--fs-xs);
@@ -605,8 +609,9 @@
   margin-top: var(--space-6);
 }
 .figures li { display: grid; gap: var(--space-1); padding-inline-start: var(--space-4); border-inline-start: 2px solid var(--color-accent); }
-.figures strong { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: var(--fw-display); line-height: 1.1; }
+.figures strong { font-family: var(--font-display); font-size: var(--fs-2xl); white-space: nowrap; font-weight: var(--fw-display); line-height: 1.1; }
 .figures span { font-size: var(--fs-xs); color: var(--color-muted); }
+@media (max-width: 599.98px) { .figures { gap: var(--space-3); } .figures li { padding-inline-start: var(--space-3); } .figures strong { font-size: var(--fs-xl); } }
 
 /* Neighborhood marquee between hero and results. */
 .marquee {
@@ -622,7 +627,9 @@
 .marquee__star { width: 14px; height: 14px; flex: none; background: var(--color-accent); clip-path: polygon(50% 0, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0 50%, 39% 35%); }
 
 /* Dark sections: girih lattice and a curved leading edge. */
-.book, .cta-dark { border-radius: var(--radius-section) var(--radius-section) 0 0; }
+.book, .cta-dark { border-radius: var(--radius-section) var(--radius-section) 0 0; margin-top: calc(-1 * var(--radius-section)); }
+/* The section before each curved one runs on underneath so the corners show its colour. */
+.process, .faq { padding-bottom: calc(var(--space-section) + var(--radius-section)); }
 .book::after, .site-footer::after, .cta-dark::after {
   content: "";
   position: absolute;
@@ -636,28 +643,12 @@
   mask-image: linear-gradient(to bottom, #000, transparent 70%);
 }
 .book::after, .cta-dark::after { border-radius: inherit; }
-.reviews { margin-bottom: 0; }
 
 /* Final CTA on forest. */
-.cta-dark { margin-top: calc(-1 * var(--radius-section)); }
+.cta-band__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .cta-dark .cta-band__title { color: var(--color-ink); }
 .cta-dark .arch { box-shadow: var(--shadow-lg); outline: 1px solid var(--color-line-strong); outline-offset: var(--space-3); }
 .cta-dark + .site-footer { border-top: var(--border-dark-hairline); }
-
-/* Service cards: price tag pinned on the photo. */
-.service-card__media { position: relative; }
-.service-card__tag {
-  position: absolute;
-  inset-block-end: var(--space-3);
-  inset-inline-start: var(--space-3);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-}
 
 /* WhatsApp floating button. */
 .wa-fab {
