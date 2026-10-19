@@ -220,6 +220,14 @@
   /* Hand-drawn swash — use as mask-image over a citron background */
   --motif-swash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M3 11.5C40 5.6 92 3.4 140 5.5c20 .9 38 2.6 57 5.2' fill='none' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
 
+  /* Girih / khatam line pattern (8-point star lattice), one tile per 80px.
+     Light variant for oat sections, citron variant for dark sections. */
+  --motif-girih-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%2323392E' stroke-width='0.8'%3E%3Cpath d='M40 12 68 40 40 68 12 40Z'/%3E%3Cpath d='M20 20h40v40H20z'/%3E%3Cpath d='M0 0l20 20M80 0 60 20M0 80l20-20M80 80 60 60M40 0v12M40 68v12M0 40h12M68 40h12'/%3E%3Ccircle cx='40' cy='40' r='7'/%3E%3C/g%3E%3C/svg%3E");
+  --motif-girih-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23D4E05B' stroke-width='0.8'%3E%3Cpath d='M40 12 68 40 40 68 12 40Z'/%3E%3Cpath d='M20 20h40v40H20z'/%3E%3Cpath d='M0 0l20 20M80 0 60 20M0 80l20-20M80 80 60 60M40 0v12M40 68v12M0 40h12M68 40h12'/%3E%3Ccircle cx='40' cy='40' r='7'/%3E%3C/g%3E%3C/svg%3E");
+  --girih-opacity: 0.07;
+  --color-whatsapp: #1F7A4D;      /* deep WhatsApp green, tuned to sit with forest (5.6:1 with linen text) */
+  --radius-section: clamp(28px, 5vw, 64px);
+
   /* Wipe band skew angle */
   --wipe-skew: -14deg;
 }

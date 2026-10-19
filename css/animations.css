@@ -120,3 +120,20 @@
   .avail-chip__dot, .hero__arch-small, .ba.is-hinting { animation: none; }
   .swash path { stroke-dashoffset: 0; }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .marquee__track { animation: marquee 48s linear infinite; }
+  .marquee:hover .marquee__track { animation-play-state: paused; }
+  .btn--primary:hover::after { transform: translateX(120%); transition: transform 700ms var(--ease-out); }
+  .hero-quote { animation: float 7s var(--ease-in-out) infinite alternate-reverse; }
+  .wa-fab { transition: transform var(--dur-fast) var(--ease-out), filter var(--dur-fast) var(--ease-out); }
+  .wa-fab:hover { transform: translateY(-2px); }
+}
+/* The track holds two identical groups; moving by half its width loops seamlessly.
+   In RTL the content flows the other way, so the loop runs in reverse. */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(calc(-50% * var(--dir, 1))); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track { flex-wrap: wrap; width: auto; justify-content: center; }
+  .marquee__group[aria-hidden="true"] { display: none; }
+  .hero-quote { animation: none; }
+}
