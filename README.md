@@ -70,6 +70,22 @@ tools/make_images.py  regenerates the web images and the simulated "before" shot
 
 ## Deploying
 
+### Vercel (recommended)
+
+The repo is ready for Vercel as-is. It's a static site, so there's no build step. `vercel.json` sets caching headers, and `.vercelignore` keeps `docs/`, `tools/` and the source photos off the live site.
+
+1. Go to https://vercel.com/new and sign in with GitHub.
+2. Import `Rafik-bash/Project-X`.
+3. Use these settings:
+   - Framework Preset: **Other**
+   - Build Command: leave empty
+   - Output Directory: leave empty (the repo root)
+4. Click **Deploy**.
+
+Vercel deploys the repo's default branch (`claude/cleaning-landing-page`), and redeploys on every push.
+
+### GitHub Pages
+
 The `gh-pages` branch holds only the site files. To publish an update:
 
 ```sh
