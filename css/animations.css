@@ -1,0 +1,114 @@
+/* All decorative motion lives here, gated behind prefers-reduced-motion.
+   Scroll reveals only hide content once JS has added .js-reveal-ready, so a
+   failed script never leaves the page blank. */
+
+@property --pos {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+
+  /* ---- Hover / press feedback ---- */
+  .btn { transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+  .btn--primary:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); transition-duration: var(--dur-instant); }
+  .i--nudge { transition: transform var(--dur-fast) var(--ease-out); }
+  .btn:hover .i--nudge, .link-arrow:hover .i--nudge { transform: translateX(3px); }
+  .service-card { transition: box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+  .service-card__media img { transition: transform var(--dur-slow) var(--ease-out); }
+  .service-card:hover .service-card__media img { transform: scale(1.03); }
+  .svc-option__box, .extra > span, .slot, .cal__day, .stepper__ctrl button, .icon-btn, .tabs__tab {
+    transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .extra > span .i { transition: width var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+  .tabs__indicator { transition: transform var(--dur-base) var(--ease-in-out), width var(--dur-base) var(--ease-in-out); }
+  summary::before { transition: transform var(--dur-base) var(--ease-out); }
+
+  /* ---- Header & mobile nav sheet ---- */
+  .js .nav__list { transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base); }
+  .js .nav__list.is-open { transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s; }
+  .mobile-bar { transition: transform 200ms var(--ease-out), visibility 0s linear 200ms; }
+  .mobile-bar.is-visible { transition: transform 200ms var(--ease-out), visibility 0s; }
+
+  /* ---- Scroll reveals ---- */
+  .js-reveal-ready .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+    transition-delay: calc(var(--i, 0) * var(--stagger));
+  }
+  .js-reveal-ready .reveal.is-in { opacity: 1; transform: none; }
+
+  /* ---- Motif 1: the wipe ---- */
+  .js-reveal-ready .wipe { isolation: isolate; }
+  .js-reveal-ready .wipe > img { clip-path: inset(0 100% 0 0); }
+  .js-reveal-ready .wipe::after {
+    content: "";
+    position: absolute;
+    inset: -10% -20%;
+    background: var(--color-accent);
+    transform: translateX(-120%) skewX(var(--wipe-skew));
+    z-index: var(--z-raised);
+    pointer-events: none;
+  }
+  .js-reveal-ready .wipe.is-in > img {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path var(--dur-wipe) var(--ease-wipe) calc(var(--dur-wipe) * 0.18);
+  }
+  .js-reveal-ready .wipe.is-in::after {
+    transform: translateX(120%) skewX(var(--wipe-skew));
+    transition: transform var(--dur-wipe) var(--ease-wipe);
+  }
+  /* The outlined hero arch keeps its own ::after, so the cloth rides on the image's clip instead. */
+  .js-reveal-ready .arch--outline.wipe::after { display: none; }
+  .js-reveal-ready .arch--outline.wipe > img { clip-path: inset(0 100% 0 0 round 999px 999px 4px 4px); }
+  .js-reveal-ready .arch--outline.wipe.is-in > img { clip-path: inset(0 0 0 0 round 999px 999px 4px 4px); }
+
+  /* ---- Motif 3: swash draws in ---- */
+  .swash path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: swash-draw var(--dur-draw) var(--ease-out) 600ms forwards;
+  }
+
+  /* ---- Before/after discoverability nudge ---- */
+  .ba.is-hinting { animation: ba-hint 1600ms var(--ease-in-out); }
+
+  /* ---- Booking ---- */
+  .js .step:not([hidden]) { animation: step-in var(--dur-slow) var(--ease-out); }
+  .is-bump { animation: bump 600ms var(--ease-out); }
+  .avail-chip__dot { animation: pulse 2.4s var(--ease-in-out) infinite; }
+  .hero__arch-small { animation: float 9s var(--ease-in-out) infinite alternate; }
+}
+
+@keyframes swash-draw { to { stroke-dashoffset: 0; } }
+@keyframes ba-hint {
+  0%, 100% { --pos: 50%; }
+  40% { --pos: 36%; }
+  70% { --pos: 58%; }
+}
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes bump {
+  0% { background: transparent; }
+  25% { background: var(--color-accent); color: var(--color-accent-ink); }
+  100% { background: transparent; }
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--color-success-soft); }
+  50% { box-shadow: 0 0 0 7px var(--color-success-soft); }
+}
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avail-chip__dot, .hero__arch-small, .ba.is-hinting { animation: none; }
+  .swash path { stroke-dashoffset: 0; }
+}
