@@ -1,0 +1,233 @@
+/* ==========================================================================
+   مكتب الاختيار الأول — Design tokens
+   Source of truth for every colour, type, space, radius, shadow, motion and
+   layout value. See docs/brand-guidelines.md for usage and rationale.
+   This file contains ONLY :root custom properties. No selectors, no rules.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------------
+     COLOUR — light (default) theme
+     Contrast ratios verified (WCAG 2.x); see guidelines §3.4.
+     --------------------------------------------------------------------- */
+
+  /* Base & surfaces */
+  --color-bg: #F4EFE6;            /* Linen — page background */
+  --color-surface: #FBF8F3;       /* Paper — cards, inputs, popovers */
+  --color-surface-2: #EBE4D7;     /* Oat — sunken panels, alt sections, hover fills */
+
+  /* Text */
+  --color-ink: #1D2420;           /* Ink — body + headings (13.8:1 on bg) */
+  --color-muted: #5A605A;         /* Sage grey — secondary text (5.6:1 on bg) */
+  --color-disabled: #9A9488;      /* Disabled text/icons only (exempt from AA) */
+
+  /* Lines */
+  --color-line: #DDD5C7;          /* Hairline — decorative dividers, card borders */
+  --color-line-strong: #8C8475;   /* Input borders, control outlines (3.2:1 on bg) */
+
+  /* Brand */
+  --color-primary: #23392E;       /* Forest — primary actions, selected states */
+  --color-primary-hover: #1A2C23; /* Forest, deeper — hover/active */
+  --color-primary-ink: #F4EFE6;   /* Text/icons on primary (10.8:1) */
+  --color-primary-soft: #DDE4D9;  /* Lichen — tinted selection, today ring fill */
+
+  --color-accent: #D4E05B;        /* Citron — the one loud note; fills only on light bg */
+  --color-accent-hover: #C5D246;
+  --color-accent-ink: #1D2420;    /* Text on citron (11.0:1) */
+
+  /* Feedback */
+  --color-success: #2E6B45;
+  --color-success-soft: #DCEBDD;
+  --color-warning: #8A5A0E;
+  --color-warning-soft: #F3E3C3;
+  --color-danger: #A3392B;
+  --color-danger-soft: #F5DDD7;
+
+  /* Focus */
+  --color-focus: #23392E;         /* Ring on light surfaces (10.8:1 on bg) */
+  --color-selection: #D4E05B;     /* ::selection background */
+
+  /* Imagery */
+  --color-image-tint: rgb(244 239 230 / 0.06);  /* linen wash over photos */
+  --color-scrim: rgb(29 36 32 / 0.55);          /* text-over-image scrim */
+  --color-overlay: rgb(29 36 32 / 0.40);        /* modal backdrop */
+
+  /* ---------------------------------------------------------------------
+     COLOUR — dark section variant (booking area, footer)
+     --------------------------------------------------------------------- */
+  --color-dark-bg: #1B2A22;          /* Deep forest */
+  --color-dark-surface: #243429;     /* Raised panels on dark */
+  --color-dark-ink: #F1ECE2;         /* 12.7:1 on dark-bg */
+  --color-dark-muted: #AEB7AD;       /* 7.3:1 on dark-bg */
+  --color-dark-line: #3A4B40;        /* Decorative hairline */
+  --color-dark-line-strong: #6F8074; /* Control outlines (3.6:1) */
+  --color-dark-primary: #D4E05B;     /* Citron becomes the action colour on dark */
+  --color-dark-primary-hover: #E0EA7C;
+  --color-dark-primary-ink: #1D2420; /* 11.0:1 on citron */
+  --color-dark-focus: #D4E05B;       /* 10.4:1 on dark-bg */
+  --color-danger-on-dark: #F2A99C;   /* error icon on dark-bg */
+  --color-light-ink: #1D2420;        /* ink that never remaps: text on light message cards inside dark sections */
+
+  /* ---------------------------------------------------------------------
+     TYPOGRAPHY
+     --------------------------------------------------------------------- */
+  /* Arabic (ar-IQ, RTL). Display: El Messiri. Body: Readex Pro. Accent: Aref Ruqaa,
+     the everyday Iraqi handwriting script, used for the one emphasised word. */
+  --font-display: "El Messiri", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI", Tahoma, serif;
+  --font-sans: "Readex Pro", "Geeza Pro", "Noto Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+  --font-accent: "Aref Ruqaa", "Diwan Thuluth", "Noto Nastaliq Urdu", var(--font-display);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Fluid type scale — 360px → 1280px viewport */
+  --fs-xs: clamp(0.7813rem, 0.769rem + 0.0543vw, 0.8125rem);       /* 12.5 → 13   */
+  --fs-sm: clamp(0.875rem, 0.8505rem + 0.1087vw, 0.9375rem);       /* 14   → 15   */
+  --fs-base: clamp(1rem, 0.9633rem + 0.163vw, 1.0938rem);          /* 16   → 17.5 */
+  --fs-md: clamp(1.125rem, 1.0639rem + 0.2717vw, 1.2813rem);       /* 18   → 20.5 */
+  --fs-lg: clamp(1.25rem, 1.1277rem + 0.5435vw, 1.5625rem);        /* 20   → 25   */
+  --fs-xl: clamp(1.5rem, 1.3043rem + 0.8696vw, 2rem);              /* 24   → 32   */
+  --fs-2xl: clamp(1.75rem, 1.4076rem + 1.5217vw, 2.625rem);        /* 28   → 42   */
+  --fs-3xl: clamp(2.125rem, 1.538rem + 2.6087vw, 3.625rem);        /* 34   → 58   */
+  --fs-display: clamp(2.625rem, 1.3043rem + 5.8696vw, 6rem);       /* 42   → 96   */
+
+  /* Weights (variable fonts — any value in range works) */
+  --fw-display-light: 500;
+  --fw-display: 500;
+  --fw-display-strong: 700;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* Fraunces variation settings */
+  --font-display-variation: normal;
+  --font-display-variation-italic: normal;
+
+  /* Line heights */
+  /* Arabic needs taller lines than Latin: deep descenders and dots. */
+  --lh-tight: 1.3;    /* display */
+  --lh-snug: 1.4;     /* h2–h3 */
+  --lh-heading: 1.45; /* h4, card titles */
+  --lh-body: 1.85;
+  --lh-ui: 1.5;       /* buttons, chips, labels */
+
+  /* Letter spacing */
+  /* Letter-spacing breaks Arabic joining, so every tracking token is zero. */
+  --ls-display: 0;
+  --ls-heading: 0;
+  --ls-body: 0;
+  --ls-eyebrow: 0;
+  --ls-ui: 0;
+
+  /* Measure */
+  --measure: 62ch;
+  --measure-narrow: 44ch;
+
+  /* ---------------------------------------------------------------------
+     SPACING — 4px base
+     --------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 0.25rem;  /*   4 */
+  --space-2: 0.5rem;   /*   8 */
+  --space-3: 0.75rem;  /*  12 */
+  --space-4: 1rem;     /*  16 */
+  --space-5: 1.5rem;   /*  24 */
+  --space-6: 2rem;     /*  32 */
+  --space-7: 3rem;     /*  48 */
+  --space-8: 4rem;     /*  64 */
+  --space-9: 6rem;     /*  96 */
+  --space-10: 8rem;    /* 128 */
+  --space-section: clamp(4rem, 2.0435rem + 8.6957vw, 9rem); /* 64 → 144 vertical section rhythm */
+
+  /* ---------------------------------------------------------------------
+     LAYOUT
+     --------------------------------------------------------------------- */
+  --container: 75rem;          /* 1200 — default content width */
+  --container-narrow: 45rem;   /*  720 — long-form text, FAQ, booking form */
+  --container-wide: 85rem;     /* 1360 — hero, galleries */
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem); /* 16 → 40 side padding */
+  --header-height: 4.5rem;     /* 72 */
+  --header-height-compact: 3.75rem; /* 60 — mobile / scrolled */
+  --tap-target: 2.75rem;       /* 44 minimum hit area */
+
+  /* ---------------------------------------------------------------------
+     RADIUS — "tailored": crisp containers, soft interactive pills, arched images
+     --------------------------------------------------------------------- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;      /* inputs, chips-square, calendar cells */
+  --radius-md: 8px;      /* cards, panels */
+  --radius-lg: 16px;     /* large media, dialogs */
+  --radius-pill: 999px;  /* buttons, chips, slider handle */
+  --radius-arch: 999px 999px var(--radius-sm) var(--radius-sm); /* arched image window */
+
+  /* ---------------------------------------------------------------------
+     BORDERS
+     --------------------------------------------------------------------- */
+  --border-width: 1px;
+  --border-width-strong: 1.5px;
+  --border-hairline: 1px solid var(--color-line);
+  --border-control: 1px solid var(--color-line-strong);
+  --border-dark-hairline: 1px solid var(--color-dark-line);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 3px;
+  --icon-stroke: 1.5px;
+
+  /* ---------------------------------------------------------------------
+     ELEVATION — warm, ink-tinted, low and diffuse
+     --------------------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgb(29 36 32 / 0.06), 0 1px 1px rgb(29 36 32 / 0.04);
+  --shadow-md: 0 8px 20px -8px rgb(29 36 32 / 0.14), 0 2px 4px rgb(29 36 32 / 0.05);
+  --shadow-lg: 0 28px 56px -20px rgb(29 36 32 / 0.22), 0 6px 12px -4px rgb(29 36 32 / 0.06);
+  --shadow-inset: inset 0 1px 2px rgb(29 36 32 / 0.08);
+  --shadow-dark-lg: 0 28px 56px -20px rgb(0 0 0 / 0.45);
+
+  /* ---------------------------------------------------------------------
+     MOTION
+     --------------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);       /* default: arrives and settles */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* state swaps, tabs indicator */
+  --ease-wipe: cubic-bezier(0.77, 0, 0.175, 1);     /* the cloth-stroke wipe */
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);        /* exits only */
+
+  --dur-instant: 80ms;   /* press feedback */
+  --dur-fast: 150ms;     /* hover, colour, focus */
+  --dur-base: 250ms;     /* chips, tabs, dropdowns */
+  --dur-slow: 450ms;     /* panels, step changes */
+  --dur-wipe: 900ms;     /* signature wipe reveal */
+  --dur-draw: 1100ms;    /* hand-drawn underline */
+  --stagger: 70ms;       /* list item stagger */
+
+  /* ---------------------------------------------------------------------
+     Z-INDEX
+     --------------------------------------------------------------------- */
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 10;     /* slider handle, sticky card bits */
+  --z-dropdown: 100;
+  --z-sticky: 200;    /* sticky booking summary */
+  --z-header: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-grain: 700;     /* page-level grain overlay (pointer-events: none) */
+
+  /* ---------------------------------------------------------------------
+     MOTIF ASSETS (data-URI)
+     --------------------------------------------------------------------- */
+  /* Fine linen grain — use at --grain-opacity with mix-blend-mode: multiply */
+  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --grain-opacity: 0.07;
+  --grain-opacity-dark: 0.10;
+
+  /* Hand-drawn swash — use as mask-image over a citron background */
+  --motif-swash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M3 11.5C40 5.6 92 3.4 140 5.5c20 .9 38 2.6 57 5.2' fill='none' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+  /* Girih / khatam line pattern (8-point star lattice), one tile per 80px.
+     Light variant for oat sections, citron variant for dark sections. */
+  --motif-girih-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%2323392E' stroke-width='0.8'%3E%3Cpath d='M40 12 68 40 40 68 12 40Z'/%3E%3Cpath d='M20 20h40v40H20z'/%3E%3Cpath d='M0 0l20 20M80 0 60 20M0 80l20-20M80 80 60 60M40 0v12M40 68v12M0 40h12M68 40h12'/%3E%3Ccircle cx='40' cy='40' r='7'/%3E%3C/g%3E%3C/svg%3E");
+  --motif-girih-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23D4E05B' stroke-width='0.8'%3E%3Cpath d='M40 12 68 40 40 68 12 40Z'/%3E%3Cpath d='M20 20h40v40H20z'/%3E%3Cpath d='M0 0l20 20M80 0 60 20M0 80l20-20M80 80 60 60M40 0v12M40 68v12M0 40h12M68 40h12'/%3E%3Ccircle cx='40' cy='40' r='7'/%3E%3C/g%3E%3C/svg%3E");
+  --girih-opacity: 0.07;
+  --color-whatsapp: #1F7A4D;      /* deep WhatsApp green, tuned to sit with forest (5.6:1 with linen text) */
+  --radius-section: clamp(28px, 5vw, 64px);
+
+  /* Wipe band skew angle */
+  --wipe-skew: -14deg;
+}
