@@ -2,6 +2,7 @@
 // Value = share of the "before" image shown, from the left.
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pct = (n) => new Intl.NumberFormat('ar-IQ', { style: 'percent' }).format(n / 100);
 
 export function initSliders(root = document) {
   root.querySelectorAll('[data-ba]').forEach(setupSlider);
@@ -22,11 +23,13 @@ function setupSlider(el) {
     const n = Math.round(pos);
     handle.setAttribute('aria-valuenow', n);
     handle.setAttribute('aria-valuetext',
-      n === 100 ? 'Showing before only' : n === 0 ? 'Showing after only' : `${n}% before, ${100 - n}% after`);
+      n === 100 ? 'تبين صورة قبل بس' : n === 0 ? 'تبين صورة بعد بس' : `${pct(n)} قبل، ${pct(100 - n)} بعد`);
   };
+  // The value counts from the inline-start edge: the left in LTR, the right in RTL.
+  const rtl = () => getComputedStyle(el).direction === 'rtl';
   const fromEvent = (e) => {
     const r = el.getBoundingClientRect();
-    return ((e.clientX - r.left) / r.width) * 100;
+    return ((rtl() ? r.right - e.clientX : e.clientX - r.left) / r.width) * 100;
   };
 
   el.addEventListener('pointerdown', (e) => {
@@ -49,7 +52,8 @@ function setupSlider(el) {
   el.addEventListener('pointercancel', end);
 
   handle.addEventListener('keydown', (e) => {
-    const map = { ArrowLeft: pos - 5, ArrowDown: pos - 5, ArrowRight: pos + 5, ArrowUp: pos + 5,
+    const toward = rtl() ? -5 : 5; // the arrow key that points at the "after" side grows "before"
+    const map = { ArrowLeft: pos - toward, ArrowDown: pos - 5, ArrowRight: pos + toward, ArrowUp: pos + 5,
       PageDown: pos - 20, PageUp: pos + 20, Home: 0, End: 100 };
     if (!(e.key in map)) return;
     e.preventDefault();

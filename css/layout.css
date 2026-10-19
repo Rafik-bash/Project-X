@@ -1,5 +1,6 @@
 /* Containers, header, footer, section scaffolding, dark-section remap. */
 
+[dir="rtl"] { --dir: -1; }
 body { padding-top: var(--header-height-compact); }
 @media (min-width: 1024px) { body { padding-top: var(--header-height); } }
 
@@ -86,7 +87,7 @@ body { padding-top: var(--header-height-compact); }
   gap: var(--space-2);
   color: var(--color-ink);
   text-decoration: none;
-  margin-right: auto;
+  margin-inline-end: auto;
 }
 .logo__mark { width: 2.25rem; height: 2.25rem; --mark-ink: var(--color-primary); --mark-swash: var(--color-accent); }
 .section--dark .logo__mark { --mark-ink: var(--color-ink); }
@@ -175,7 +176,7 @@ body { padding-top: var(--header-height-compact); }
 }
 @media (min-width: 1024px) {
   .menu-btn { display: none; }
-  .nav { margin-right: var(--space-2); }
+  .nav { margin-inline-end: var(--space-2); }
 }
 
 body.menu-open { overflow: hidden; }

@@ -17,6 +17,7 @@
   .btn:active { transform: translateY(0); transition-duration: var(--dur-instant); }
   .i--nudge { transition: transform var(--dur-fast) var(--ease-out); }
   .btn:hover .i--nudge, .link-arrow:hover .i--nudge { transform: translateX(3px); }
+  [dir="rtl"] .btn:hover .i--nudge, [dir="rtl"] .link-arrow:hover .i--nudge { transform: scaleX(-1) translateX(3px); }
   .service-card { transition: box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
   .service-card__media img { transition: transform var(--dur-slow) var(--ease-out); }
   .service-card:hover .service-card__media img { transform: scale(1.03); }
@@ -62,10 +63,17 @@
     transform: translateX(120%) skewX(var(--wipe-skew));
     transition: transform var(--dur-wipe) var(--ease-wipe);
   }
+  /* RTL: the cloth sweeps right to left, the way the page reads. */
+  .js-reveal-ready[dir="rtl"] .wipe > img { clip-path: inset(0 0 0 100%); }
+  .js-reveal-ready[dir="rtl"] .wipe::after { transform: translateX(120%) skewX(calc(-1 * var(--wipe-skew))); }
+  .js-reveal-ready[dir="rtl"] .wipe.is-in > img { clip-path: inset(0 0 0 0); }
+  .js-reveal-ready[dir="rtl"] .wipe.is-in::after { transform: translateX(-120%) skewX(calc(-1 * var(--wipe-skew))); }
   /* The outlined hero arch keeps its own ::after, so the cloth rides on the image's clip instead. */
   .js-reveal-ready .arch--outline.wipe::after { display: none; }
   .js-reveal-ready .arch--outline.wipe > img { clip-path: inset(0 100% 0 0 round 999px 999px 4px 4px); }
   .js-reveal-ready .arch--outline.wipe.is-in > img { clip-path: inset(0 0 0 0 round 999px 999px 4px 4px); }
+  .js-reveal-ready[dir="rtl"] .arch--outline.wipe > img { clip-path: inset(0 0 0 100% round 999px 999px 4px 4px); }
+  .js-reveal-ready[dir="rtl"] .arch--outline.wipe.is-in > img { clip-path: inset(0 0 0 0 round 999px 999px 4px 4px); }
 
   /* ---- Motif 3: swash draws in ---- */
   .swash path {
@@ -91,7 +99,7 @@
   70% { --pos: 58%; }
 }
 @keyframes step-in {
-  from { opacity: 0; transform: translateX(12px); }
+  from { opacity: 0; transform: translateX(calc(12px * var(--dir, 1))); }
   to { opacity: 1; transform: none; }
 }
 @keyframes bump {

@@ -3,31 +3,46 @@
 // Behaviour follows docs/ux-spec.md §5; wording comes from data-* attributes
 // in the markup so copy stays in index.html.
 
+// Brand name, used in the .ics file. Keep in sync with index.html.
+const BRAND = 'ميزون كلير';
+
+// Prices in Iraqi dinar (IQD). Base = studio or 1 bedroom with 1 bathroom.
 const SERVICES = {
-  standard: { name: 'Standard clean', base: 120, bed: 20, bath: 15, hours: 2 },
-  deep: { name: 'Deep clean', base: 220, bed: 30, bath: 25, hours: 3.5 },
-  move: { name: 'Move in / move out', base: 280, bed: 35, bath: 30, hours: 4.5 },
-  reno: { name: 'Post-renovation', base: 340, bed: 40, bath: 35, hours: 5.5 },
+  standard: { name: 'Standard clean', base: 75000, bed: 10000, bath: 10000, hours: 2 },
+  deep: { name: 'Deep clean', base: 125000, bed: 15000, bath: 15000, hours: 3.5 },
+  move: { name: 'Move in / move out', base: 160000, bed: 20000, bath: 15000, hours: 4.5 },
+  reno: { name: 'Post-renovation', base: 200000, bed: 25000, bath: 20000, hours: 5.5 },
 };
 const EXTRAS = {
-  oven: { name: 'Inside oven', price: 35, hours: 1 },
-  fridge: { name: 'Inside fridge', price: 25, hours: 0.5 },
-  windows: { name: 'Interior windows', price: 40, hours: 1 },
-  laundry: { name: 'Laundry & fold', price: 30, hours: 0.5 },
+  oven: { name: 'Inside oven', price: 25000, hours: 1 },
+  fridge: { name: 'Inside fridge', price: 15000, hours: 0.5 },
+  windows: { name: 'Interior windows', price: 30000, hours: 1 },
+  laundry: { name: 'Laundry & fold', price: 20000, hours: 0.5 },
 };
 const INCLUDED_IN_MOVE = ['oven', 'fridge'];
+// Iraqi working week: Saturday to Thursday, Friday off, Thursday a short day.
+const CLOSED_DAY = 5; // Friday
+const SHORT_DAY = 4; // Thursday
 const WEEKDAY_SLOTS = ['08:00', '10:00', '12:00', '14:00', '16:00'];
-const SATURDAY_SLOTS = ['08:00', '10:00', '12:00'];
+const SHORT_DAY_SLOTS = ['08:00', '10:00', '12:00'];
 const BOOK_AHEAD_DAYS = 56;
 const STORE_KEY = 'mc-booking';
 const REF_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const BOUNDS = { bedrooms: [0, 6], bathrooms: [1, 4] };
 
-const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-const fmtLong = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-const fmtDay = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-const fmtShort = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-const fmtMonth = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
+// ar-IQ gives Arabic-Indic digits and the Iraqi month names (تشرين الأول, كانون الثاني …).
+const LOCALE = 'ar-IQ';
+const num = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 1 });
+const money = { format: (n) => `${num.format(n)} د.ع` };
+const fmtLong = new Intl.DateTimeFormat(LOCALE, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+const fmtDay = new Intl.DateTimeFormat(LOCALE, { weekday: 'long', month: 'long', day: 'numeric' });
+const fmtShort = new Intl.DateTimeFormat(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' });
+const fmtMonth = new Intl.DateTimeFormat(LOCALE, { month: 'long', year: 'numeric' });
+const isRtl = () => document.documentElement.dir === 'rtl';
+// Saturday-first week: Sat=0 … Fri=6.
+const weekIndex = (d) => (d.getDay() + 1) % 7;
+// Accept Arabic-Indic (٠-٩) and Persian (۰-۹) digits in typed input.
+const toLatinDigits = (v) => v.replace(/[\u0660-\u0669]/g, (c) => c.charCodeAt(0) - 0x0660).replace(/[\u06F0-\u06F9]/g, (c) => c.charCodeAt(0) - 0x06F0);
 const pad = (n) => String(n).padStart(2, '0');
 const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const fromIso = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
@@ -35,17 +50,31 @@ const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 
 const sameDay = (a, b) => !!a && !!b && iso(a) === iso(b);
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// "٨ الصبح", "١٢ الظهر", "٤ العصر", "٧ المسا": how a Baghdadi says the time.
 function to12h(t) {
   const [h, m] = t.split(':').map(Number);
-  return `${((h + 11) % 12) + 1}${m ? ':' + pad(m) : ''}${h < 12 ? 'am' : 'pm'}`;
+  const part = h < 12 ? 'الصبح' : h < 15 ? 'الظهر' : h < 18 ? 'العصر' : 'المسا';
+  const hh = num.format(((h + 11) % 12) + 1);
+  return `${m ? `${hh}:${num.format(m).padStart(2, '٠')}` : hh} ${part}`;
 }
 function addHours(t, hrs) {
   const [h, m] = t.split(':').map(Number);
   const mins = h * 60 + m + Math.round(hrs * 60);
   return `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`;
 }
-const fmtHours = (h) => (h === 1 ? '1 hour' : `${h % 1 ? h.toFixed(1) : h} hours`);
-const sizeLabel = (bed, bath) => `${bed === 0 ? 'Studio' : `${bed} bed`} · ${bath} bath`;
+// Arabic counting: 1 ساعة, 2 ساعتين, 3–10 ساعات; halves are "ونص".
+function fmtHours(h) {
+  const whole = Math.floor(h);
+  const half = h % 1 ? ' ونص' : '';
+  if (whole === 0) return 'نص ساعة';
+  if (whole === 1) return 'ساعة' + half;
+  if (whole === 2) return 'ساعتين' + half;
+  return `${num.format(whole)} ${whole <= 10 ? 'ساعات' : 'ساعة'}${half}`;
+}
+const fmtTeam = (n) => (n === 1 ? 'شخص واحد' : n === 2 ? 'شخصين' : `${num.format(n)} أشخاص`);
+const fmtBeds = (n) => (n === 0 ? 'ستوديو' : n === 1 ? 'غرفة نوم وحدة' : n === 2 ? 'غرفتين نوم' : `${num.format(n)} غرف نوم`);
+const fmtBaths = (n) => (n === 1 ? 'حمام واحد' : n === 2 ? 'حمامين' : `${num.format(n)} حمامات`);
+const sizeLabel = (bed, bath) => `${fmtBeds(bed)} · ${fmtBaths(bath)}`;
 
 const DEFAULTS = () => ({
   step: 1, service: 'standard', bedrooms: 2, bathrooms: 1, extras: [], date: null, slot: null, contact: {},
@@ -75,14 +104,14 @@ export function initBooking(root) {
   // --- availability (deterministic, so every visit sees the same calendar) ---
   function dayStatus(d) {
     if (d < firstBookable || d > lastBookable) return 'past';
-    if (d.getDay() === 0) return 'closed';
+    if (d.getDay() === CLOSED_DAY) return 'closed';
     const k = (d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()) % 13;
     if (k === 0 || k === 5) return 'full';
     return 'open';
   }
   function slotsFor(d) {
     const day = d.getDate();
-    return (d.getDay() === 6 ? SATURDAY_SLOTS : WEEKDAY_SLOTS).map((t, i) => {
+    return (d.getDay() === SHORT_DAY ? SHORT_DAY_SLOTS : WEEKDAY_SLOTS).map((t, i) => {
       const taken = (day + 3 * i) % 5 === 0 || (day + i) % 7 === 0;
       return { t, free: !taken };
     }).map((s, i, all) => (all.some((x) => x.free) || i ? s : { ...s, free: true }));
@@ -150,7 +179,7 @@ export function initBooking(root) {
     for (const key of ['bedrooms', 'bathrooms']) {
       const v = state[key];
       const out = $(`[data-stepper="${key}"] output`);
-      out.textContent = key === 'bedrooms' && v === 0 ? 'Studio' : v;
+      out.textContent = key === 'bedrooms' && v === 0 ? 'ستوديو' : num.format(v);
       $(`[data-stepper="${key}"] [data-dec]`).disabled = v <= BOUNDS[key][0];
       $(`[data-stepper="${key}"] [data-inc]`).disabled = v >= BOUNDS[key][1];
     }
@@ -202,7 +231,7 @@ export function initBooking(root) {
         || days.find((d) => dayStatus(d) === 'open') || days[0];
     }
 
-    const lead = (first.getDay() + 6) % 7; // Monday-first
+    const lead = weekIndex(first); // Saturday-first
     let d = addDays(first, -lead);
     const rows = [];
     while (rows.length < 6) {
@@ -211,11 +240,11 @@ export function initBooking(root) {
         if (d.getMonth() !== view.getMonth()) { cells.push('<td role="gridcell" class="cal__pad"></td>'); continue; }
         const st = dayStatus(d);
         const sel = sameDay(d, state.date);
-        const label = `${fmtLong.format(d).replace(',', '')}, ${{ open: 'available', full: 'fully booked', closed: 'closed', past: 'unavailable' }[st]}${sel ? ', selected' : ''}`;
-        cells.push(`<td role="gridcell"${sel ? ' aria-selected="true"' : ''}><button type="button"
+        const label = `${fmtLong.format(d)}، ${{ open: 'متاح', full: 'محجوز بالكامل', closed: 'عطلة', past: 'غير متاح' }[st]}${sel ? '، مختار' : ''}`;
+        cells.push(`<td role="gridcell"${sel ? ' aria-selected="true"' : ''}><button type="button" lang="ar-IQ"
           class="cal__day is-${st}${sel ? ' is-selected' : ''}" data-date="${iso(d)}"
           tabindex="${sameDay(d, focusDate) ? 0 : -1}" aria-label="${label}"
-          ${st !== 'open' ? 'aria-disabled="true"' : ''}${sameDay(d, today) ? ' aria-current="date"' : ''}>${d.getDate()}</button></td>`);
+          ${st !== 'open' ? 'aria-disabled="true"' : ''}${sameDay(d, today) ? ' aria-current="date"' : ''}>${num.format(d.getDate())}</button></td>`);
       }
       rows.push(`<tr role="row">${cells.join('')}</tr>`);
       if (d.getMonth() !== view.getMonth()) break;
@@ -231,10 +260,10 @@ export function initBooking(root) {
     focusDate = d;
     clearError('date');
     const slots = slotsFor(d);
-    let msg = `${fmtDay.format(d)} selected. ${slots.filter((s) => s.free).length} arrival times available.`;
+    let msg = `اخترت ${fmtDay.format(d)}. اكو ${num.format(slots.filter((s) => s.free).length)} أوقات وصول متاحة.`;
     if (prevSlot && !slots.find((s) => s.t === prevSlot && s.free)) {
       state.slot = null;
-      msg += ` ${to12h(prevSlot)} isn't available that day. Choose another time.`;
+      msg += ` الساعة ${to12h(prevSlot)} مو متاحة بهذا اليوم، اختار وقت ثاني.`;
     }
     renderCalendar(true);
     update();
@@ -252,7 +281,7 @@ export function initBooking(root) {
       <div class="slots__grid">${slots.map((s) => `<label class="slot${s.free ? '' : ' is-taken'}">
         <input type="radio" name="slot" value="${s.t}"${s.free ? '' : ' disabled'}${state.slot === s.t ? ' checked' : ''}>
         <span class="slot__time">${to12h(s.t)}</span>
-        <span class="slot__meta">${s.free ? `done by ~${to12h(addHours(s.t, hours + 0.5))}` : 'Booked'}</span>
+        <span class="slot__meta">${s.free ? `نخلص تقريباً ${to12h(addHours(s.t, hours + 0.5))}` : 'محجوز'}</span>
       </label>`).join('')}</div>
       <p class="slots__note">${slotWrap.dataset.note}</p></fieldset>`;
   }
@@ -265,14 +294,15 @@ export function initBooking(root) {
     const btn = e.target.closest('[data-date]');
     if (!btn) return;
     const d = fromIso(btn.dataset.date);
-    const dow = (d.getDay() + 6) % 7;
+    const dow = weekIndex(d);
+    const fwd = isRtl() ? -1 : 1; // in RTL the next day is to the left
     const sameDayOfMonth = (offset) => {
       const t = new Date(d.getFullYear(), d.getMonth() + offset, 1);
       const len = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
       return new Date(t.getFullYear(), t.getMonth(), Math.min(d.getDate(), len));
     };
     const moves = {
-      ArrowLeft: () => addDays(d, -1), ArrowRight: () => addDays(d, 1),
+      ArrowLeft: () => addDays(d, -fwd), ArrowRight: () => addDays(d, fwd),
       ArrowUp: () => addDays(d, -7), ArrowDown: () => addDays(d, 7),
       Home: () => addDays(d, -dow), End: () => addDays(d, 6 - dow),
       PageUp: () => sameDayOfMonth(-1), PageDown: () => sameDayOfMonth(1),
@@ -302,7 +332,7 @@ export function initBooking(root) {
   const RULES = {
     name: (v) => v.trim().length >= 2,
     email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
-    phone: (v) => { const n = v.replace(/[\s()+.-]/g, ''); return /^\d{10,15}$/.test(n); },
+    phone: (v) => { const n = toLatinDigits(v).replace(/[\s()+.-]/g, ''); return /^\d{10,15}$/.test(n); },
     address: (v) => v.trim().length >= 5,
     notes: (v) => v.length <= 500,
   };
@@ -328,7 +358,7 @@ export function initBooking(root) {
       if (input.name === 'notes') {
         const left = 500 - input.value.length;
         const c = $('[data-notes-count]');
-        c.textContent = `${left} characters left`;
+        c.textContent = `باقي ${num.format(left)} حرف`;
         c.hidden = left > 50;
       }
       if (input.name === 'address') renderSummary();
@@ -379,12 +409,12 @@ export function initBooking(root) {
     set('service', s.name);
     set('size', sizeLabel(state.bedrooms, state.bathrooms));
     set('extras', [
-      ...(state.service === 'move' ? ['Oven & fridge included'] : []),
+      ...(state.service === 'move' ? ['الفرن والثلاجة ضمن الخدمة'] : []),
       ...extras.map((k) => EXTRAS[k].name),
-    ].join(', ') || 'None');
-    set('when', state.date ? `${fmtShort.format(state.date)}${state.slot ? ' · ' + to12h(state.slot) : ''}` : 'Not chosen yet');
-    set('team', `About ${fmtHours(q.hours)} · ${q.team === 1 ? '1 cleaner' : `${q.team} cleaners`}`);
-    set('address', state.contact.address?.trim() || 'Not added yet');
+    ].join('، ') || 'ماكو');
+    set('when', state.date ? `${fmtShort.format(state.date)}${state.slot ? ' · ' + to12h(state.slot) : ''}` : 'بعد ما اخترت');
+    set('team', `حوالي ${fmtHours(q.hours)} · ${fmtTeam(q.team)}`);
+    set('address', state.contact.address?.trim() || 'بعد ما انضاف');
     set('total', money.format(q.price));
     if (lastTotal !== null && lastTotal !== q.price) {
       $$('[data-sum="total"]').forEach((el) => { el.classList.remove('is-bump'); void el.offsetWidth; el.classList.add('is-bump'); });
@@ -399,7 +429,7 @@ export function initBooking(root) {
     renderSummary();
     if (estimate) {
       const q = quote();
-      announce(`Estimate ${money.format(q.price)}, about ${fmtHours(q.hours)}.`, 600);
+      announce(`السعر التقريبي ${money.format(q.price)}، حوالي ${fmtHours(q.hours)}.`, 600);
     }
     save();
   }
@@ -470,7 +500,7 @@ export function initBooking(root) {
     const s = SERVICES[state.service];
     const fill = (k, v) => $$(`[data-confirm="${k}"]`).forEach((el) => { el.textContent = v; });
     fill('first', (state.contact.name || '').trim().split(/\s+/)[0]);
-    fill('service', s.name.toLowerCase());
+    fill('service', s.name);
     fill('when', fmtDay.format(state.date));
     fill('time', to12h(state.slot));
     fill('email', state.contact.email.trim());
@@ -501,7 +531,7 @@ export function initBooking(root) {
       out.push(rest);
       return out.join('\r\n');
     };
-    const extras = effectiveExtras().map((k) => EXTRAS[k].name).join(', ') || 'None';
+    const extras = effectiveExtras().map((k) => EXTRAS[k].name).join('، ') || 'ماكو';
     const notes = state.contact.notes?.trim();
     return [
       'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Maison Clair//Booking//EN', 'CALSCALE:GREGORIAN',
@@ -510,10 +540,10 @@ export function initBooking(root) {
       `DTSTAMP:${utc}`,
       `DTSTART:${local(start)}`,
       `DTEND:${local(end)}`,
-      `SUMMARY:${esc(`Maison Clair: ${s.name}`)}`,
+      `SUMMARY:${esc(`${BRAND}: ${s.name}`)}`,
       `LOCATION:${esc(state.contact.address.trim())}`,
-      `DESCRIPTION:${esc(`Booking ${ref}\nExtras: ${extras}\nEstimated total: ${money.format(price)}${notes ? `\nNotes: ${notes}` : ''}`)}`,
-      'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', `DESCRIPTION:${esc('Maison Clair visits tomorrow')}`, 'END:VALARM',
+      `DESCRIPTION:${esc(`رقم الحجز ${ref}\nالإضافات: ${extras}\nالسعر التقريبي: ${money.format(price)}${notes ? `\nملاحظات: ${notes}` : ''}`)}`,
+      'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', `DESCRIPTION:${esc(`${BRAND} جايين باچر`)}`, 'END:VALARM',
       'END:VEVENT', 'END:VCALENDAR', '',
     ].map(fold).join('\r\n');
   }
@@ -529,8 +559,8 @@ export function initBooking(root) {
     const btn = e.currentTarget;
     try { await navigator.clipboard.writeText(ref); } catch { return; }
     const label = btn.textContent;
-    btn.textContent = 'Copied';
-    announce('Booking reference copied.');
+    btn.textContent = 'انسخ';
+    announce('تم نسخ رقم الحجز.');
     setTimeout(() => { btn.textContent = label; }, 2000);
   });
   $('[data-restart]').addEventListener('click', () => {
@@ -561,7 +591,7 @@ export function initBooking(root) {
     if (state.step === 4) state = { ...DEFAULTS(), service: a.dataset.service };
     update();
     goTo(1, { focus: false });
-    announce(`${SERVICES[state.service].name} selected.`);
+    announce(`تم اختيار ${SERVICES[state.service].name}.`);
   });
 
   // --- boot -----------------------------------------------------------------
@@ -580,7 +610,7 @@ export function nextAvailable() {
   for (let i = 1; i <= BOOK_AHEAD_DAYS; i++) {
     const d = addDays(today, i);
     const k = (d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()) % 13;
-    if (d.getDay() !== 0 && k !== 0 && k !== 5) return fmtShort.format(d);
+    if (d.getDay() !== CLOSED_DAY && k !== 0 && k !== 5) return fmtShort.format(d);
   }
   return null;
 }

@@ -1,30 +1,39 @@
 /* Fonts (self-hosted, SIL OFL), reset, element defaults. */
 
 @font-face {
-  font-family: "Fraunces";
-  src: url("../assets/fonts/fraunces-var.woff2") format("woff2-variations"),
-       url("../assets/fonts/fraunces-var.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Fraunces";
-  src: url("../assets/fonts/fraunces-var-italic.woff2") format("woff2-variations"),
-       url("../assets/fonts/fraunces-var-italic.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Instrument Sans";
-  src: url("../assets/fonts/instrument-sans-var.woff2") format("woff2-variations"),
-       url("../assets/fonts/instrument-sans-var.woff2") format("woff2");
+  font-family: "El Messiri";
+  src: url("../assets/fonts/el-messiri-arabic.woff2") format("woff2");
   font-weight: 400 700;
-  font-style: normal;
   font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "El Messiri";
+  src: url("../assets/fonts/el-messiri-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Readex Pro";
+  src: url("../assets/fonts/readex-pro-arabic.woff2") format("woff2");
+  font-weight: 160 700;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Readex Pro";
+  src: url("../assets/fonts/readex-pro-latin.woff2") format("woff2");
+  font-weight: 160 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Aref Ruqaa";
+  src: url("../assets/fonts/aref-ruqaa-arabic-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+200C-200E;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -81,9 +90,12 @@ h1, h2, h3, h4 {
   line-height: var(--lh-snug);
   text-wrap: balance;
 }
+/* The one emphasised word per heading is set in Ruqaa instead of italic
+   (Arabic has no true italic). */
 h1 em, h2 em, h3 em {
-  font-style: italic;
-  font-variation-settings: var(--font-display-variation-italic);
+  font-family: var(--font-accent);
+  font-style: normal;
+  font-weight: 700;
 }
 p { text-wrap: pretty; }
 
@@ -115,7 +127,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 .skip-link {
   position: absolute;
-  left: var(--space-4);
+  inset-inline-start: var(--space-4);
   top: var(--space-3);
   z-index: calc(var(--z-header) + 1);
   padding: var(--space-2) var(--space-4);
